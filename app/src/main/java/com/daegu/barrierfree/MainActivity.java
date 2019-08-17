@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.Manifest;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -22,7 +23,13 @@ import com.naver.maps.map.Symbol;
 import com.naver.maps.map.UiSettings;
 import com.naver.maps.map.util.FusedLocationSource;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener {
 
@@ -46,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setDeniedMessage("거부하셨습니다.\n추후에 [설정] > [권한] 에서 권한을 허용할 수 있습니다")
                 .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
                 .check();
+
+        readBarrierFreeData();
     }
 
     @Override
@@ -99,5 +108,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setMapType(NaverMap.MapType.Basic);
         naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true);
         naverMap.setIndoorEnabled(true);
+    }
+
+    private List<BFDataSample> bfSamples= new ArrayList<>();
+    private void readBarrierFreeData() {
+        InputStream is = getResources().openRawResource(R.raw.seoul_barrier_free);
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName("UTF-8"))
+        );
+
+        String line="";
+        try {
+            while ((line = reader.readLine()) != null) {
+                Log.d("MyActivity","Line : "+line);
+                // Split
+                String[] tokens = line.split("\",\"");
+
+                // Read Data
+                BFDataSample sample = new BFDataSample();
+                //sample.setNum(tokens[0]);
+                sample.setBusinessName(tokens[1]);
+                sample.setTel(tokens[2]);
+                sample.setFax(tokens[3]);
+                sample.setAddress(tokens[4]);
+                sample.setOpTime(tokens[5]);
+                sample.setClosedDay(tokens[6]);
+                sample.setBasicInfo(tokens[7]);
+                sample.setLatitude(tokens[28]);
+                sample.setLongitude(tokens[27]);
+                bfSamples.add(sample);
+
+                Log.d("MyActivity","Just Created : "+sample);
+
+            }
+        } catch (IOException e) {
+            Log.wtf("MyActivity","Error Reading Data File on Line"+line,e);
+            e.printStackTrace();
+        }
     }
 }
