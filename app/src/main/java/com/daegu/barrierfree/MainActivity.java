@@ -6,22 +6,29 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
+import android.graphics.Color;
+import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraAnimation;
+import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.Symbol;
 import com.naver.maps.map.UiSettings;
+import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.util.FusedLocationSource;
 
 import java.io.BufferedReader;
@@ -32,14 +39,16 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener, NaverMap.OnLocationChangeListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     private MapFragment mapFragment;
     private FragmentManager fm;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
     private NaverMap naverMap = null;
-    private ArrayList<BarrierDO> list = new ArrayList<>();
+    private ArrayList<BarrierDO> list = new ArrayList<>(); // basic
+    private ArrayList<BarrierDO> govList = new ArrayList<>(); // gov
+    private ArrayList<BarrierDO> moneyList = new ArrayList<>(); // money
     private static Gson gson = new Gson();
 
     @Override
@@ -61,6 +70,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void run() {
                 readBarrierFreeData();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for(int i=0; i<list.size(); i++) {
+                            setDefaultMarker(list.get(i));
+                        }
+                    }
+                });
+
             }
         }).start();
 
@@ -99,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
 
+        this.naverMap.addOnLocationChangeListener(this);
+
         setDefaultSettings();
     }
 
@@ -117,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setMapType(NaverMap.MapType.Basic);
         naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true);
         naverMap.setIndoorEnabled(true);
+        naverMap.setMinZoom(17.5);
     }
 
     private List<BFDataSample> bfSamples = new ArrayList<>();
@@ -128,7 +150,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
 
         String line = "";
+
         try {
+            //caption 버리기위함
+            line = reader.readLine();
             while ((line = reader.readLine()) != null) {
                 //Log.d("MyActivity","Line : "+line);
                 // Split
@@ -144,13 +169,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 sample.setOpTime(tokens[5]);
                 sample.setClosedDay(tokens[6]);
                 sample.setBasicInfo(tokens[7]);
+                sample.setCategory(tokens[26]);
                 sample.setLatitude(tokens[28]);
                 sample.setLongitude(tokens[27]);
                 bfSamples.add(sample);
 
                 Log.d("MyActivity", "Just Created : " + sample);
 
-//                doBarrierParsing(sample.toString().replaceAll("BFDataSample", "").replaceAll("=", ":"));
+                doBarrierParsing(sample.toString().replaceAll("BFDataSample", ""));
 
             }
         } catch (IOException e) {
@@ -163,8 +189,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void doBarrierParsing(final String json) {
         BarrierDO barrier = gson.fromJson(json, BarrierDO.class);
 
-        Log.i("tqtq", "" + barrier);
-
         list.add(barrier);
+    }
+
+    private void setDefaultMarker(BarrierDO data) {
+        Marker marker = new Marker();
+        marker.setPosition(new LatLng(Double.parseDouble(data.getLatitude()), Double.parseDouble(data.getLongitude())));
+        marker.setAnchor(new PointF(1, 1));
+        marker.setIconPerspectiveEnabled(true); //자동 원근법
+        marker.setCaptionText(data.getBusinessName()); //가게명
+        marker.setSubCaptionText(data.getCategory()); //업종
+        marker.setCaptionColor(Color.CYAN);
+        marker.setHideCollidedSymbols(true);    //심볼 충돌제거
+        marker.setMap(naverMap);
+    }
+
+    @Override
+    public void onLocationChange(@NonNull Location location) {
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(location.getLatitude(), location.getLongitude()))
+                .animate(CameraAnimation.Fly, 1000);
+        naverMap.moveCamera(cameraUpdate);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        switch(menuItem.getItemId()) {
+            case R.id.bottom_basic:
+                break;
+            case R.id.bottom_gov:
+                break;
+            case R.id.bottom_money:
+                break;
+            case R.id.bottom_search:
+                break;
+            case R.id.bottom_favorite:
+                break;
+        }
+
+        return true;
     }
 }

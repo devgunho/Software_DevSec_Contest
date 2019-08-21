@@ -9,13 +9,14 @@ public class BarrierDO {
     public String opTime;
     public String closedDay;
     public String basicInfo;
-    public String latitude;
-    public String longitude;
-    public String category;
+    public String category;    // 26 : "메뉴명"
+    public String latitude;    // 28 : "위도"
+    public String longitude;   // 27 : "경도"
 
     public BarrierDO() {
 
     }
+
 
     public String getBusinessName() {
         return businessName;
@@ -73,6 +74,14 @@ public class BarrierDO {
         this.basicInfo = basicInfo;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getLatitude() {
         return latitude;
     }
@@ -89,14 +98,6 @@ public class BarrierDO {
         this.longitude = longitude;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     @Override
     public String toString() {
         return "BarrierDO{" +
@@ -107,9 +108,9 @@ public class BarrierDO {
                 ", opTime='" + opTime + '\'' +
                 ", closedDay='" + closedDay + '\'' +
                 ", basicInfo='" + basicInfo + '\'' +
+                ", category='" + category + '\'' +
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
-                ", category='" + category + '\'' +
                 '}';
     }
 }
