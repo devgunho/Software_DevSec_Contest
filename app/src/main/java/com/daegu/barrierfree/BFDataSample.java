@@ -45,8 +45,9 @@ class BFDataSample {
     private String opTime;
     private String closedDay;
     private String basicInfo;
-    private String latitude;
-    private String longitude;
+    private String category;    // 26 : "메뉴명"
+    private String latitude;    // 28 : "위도"
+    private String longitude;   // 27 : "경도"
 
     /*
     public String getNum() {
@@ -118,6 +119,14 @@ class BFDataSample {
         return latitude;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
@@ -134,15 +143,16 @@ class BFDataSample {
     public String toString() {
         return "BFDataSample{" +
                 //"num='" + num + '\'' +
-                "businessName='" + businessName + '\'' +
-                ", tel='" + tel + '\'' +
-                ", fax='" + fax + '\'' +
-                ", address='" + address + '\'' +
-                ", opTime='" + opTime + '\'' +
-                ", closedDay='" + closedDay + '\'' +
-                ", basicInfo='" + basicInfo + '\'' +
-                ", latitude='" + latitude + '\'' +
-                ", longitude='" + longitude + '\'' +
+                "\"businessName\" : \"" + businessName + '\"' +
+                ", \"tel\" : \"" + tel + '\"' +
+                ", \"fax\" : \"" + fax + '\"' +
+                ", \"address\" : \"" + address + '\"' +
+                ", \"opTime\" : \"" + opTime + '\"' +
+                ", \"closedDay\" : \"" + closedDay + '\"' +
+                ", \"basicInfo\" : \"" + basicInfo + '\"' +
+                ", \"category\" : \"" + category + '\"' +
+                ", \"latitude\" : \"" + latitude + '\"' +
+                ", \"longitude\" : \"" + longitude + '\"' +
                 '}';
     }
 }
