@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.naver.maps.geometry.LatLng;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
     private NaverMap naverMap = null;
+    private ArrayList<BarrierDO> list = new ArrayList<>();
+    private static Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +57,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
                 .check();
 
-        readBarrierFreeData();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                readBarrierFreeData();
+            }
+        }).start();
+
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,  @NonNull int[] grantResults) {
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             return;
         }
@@ -71,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onPermissionGranted() {
 
             fm = getSupportFragmentManager();
-            mapFragment = (MapFragment)fm.findFragmentById(R.id.main_frame);
+            mapFragment = (MapFragment) fm.findFragmentById(R.id.main_frame);
             if (mapFragment == null) {
                 mapFragment = MapFragment.newInstance();
                 fm.beginTransaction().add(R.id.main_frame, mapFragment).commit();
@@ -110,17 +119,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setIndoorEnabled(true);
     }
 
-    private List<BFDataSample> bfSamples= new ArrayList<>();
+    private List<BFDataSample> bfSamples = new ArrayList<>();
+
     private void readBarrierFreeData() {
         InputStream is = getResources().openRawResource(R.raw.seoul_barrier_free);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, Charset.forName("UTF-8"))
         );
 
-        String line="";
+        String line = "";
         try {
             while ((line = reader.readLine()) != null) {
-                Log.d("MyActivity","Line : "+line);
+                //Log.d("MyActivity","Line : "+line);
                 // Split
                 String[] tokens = line.split("\",\"");
 
@@ -138,12 +148,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 sample.setLongitude(tokens[27]);
                 bfSamples.add(sample);
 
-                Log.d("MyActivity","Just Created : "+sample);
+                Log.d("MyActivity", "Just Created : " + sample);
+
+//                doBarrierParsing(sample.toString().replaceAll("BFDataSample", "").replaceAll("=", ":"));
 
             }
         } catch (IOException e) {
-            Log.wtf("MyActivity","Error Reading Data File on Line"+line,e);
+            Log.wtf("MyActivity", "Error Reading Data File on Line" + line, e);
             e.printStackTrace();
         }
+
+    }
+
+    private void doBarrierParsing(final String json) {
+        BarrierDO barrier = gson.fromJson(json, BarrierDO.class);
+
+        Log.i("tqtq", "" + barrier);
+
+        list.add(barrier);
     }
 }
