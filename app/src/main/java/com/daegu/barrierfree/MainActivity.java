@@ -22,10 +22,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
@@ -56,13 +60,13 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener, NaverMap.OnLocationChangeListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener, NaverMap.OnLocationChangeListener, TabLayout.OnTabSelectedListener {
 
     private MapFragment mapFragment = null;
     private FragmentManager fm = null;
-    private BottomNavigationView main_bottom = null;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
+    private TabLayout main_bottom = null;
     private NaverMap naverMap = null;
     private ArrayList<BarrierDO> list = new ArrayList<>(); // basic
     private ArrayList<BarrierDO> govList = new ArrayList<>(); // gov
@@ -80,16 +84,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        main_bottom = (BottomNavigationView)findViewById(R.id.main_bottom);
-
-        Menu menu = main_bottom.getMenu();
-        menu.findItem(R.id.bottom_basic).setIcon(R.drawable.gov);
         manager = (LocationManager)getSystemService(LOCATION_SERVICE);
+
+        main_bottom = (TabLayout)findViewById(R.id.main_bottom);
+
+        main_bottom.addTab(main_bottom.newTab().setText("전체"));
+        main_bottom.addTab(main_bottom.newTab().setText("공공"));
+        main_bottom.addTab(main_bottom.newTab().setText("금융"));
+        main_bottom.addTab(main_bottom.newTab().setText("검색"));
+        main_bottom.addTab(main_bottom.newTab().setText("즐겨찾기"));
+
+        main_bottom.getTabAt(0).setIcon(R.drawable.basic);
+        main_bottom.getTabAt(1).setIcon(R.drawable.gov);
+        main_bottom.getTabAt(2).setIcon(R.drawable.money);
+        main_bottom.getTabAt(3).setIcon(R.drawable.lenz);
+        main_bottom.getTabAt(4).setIcon(R.drawable.fill_star);
+
+
+        main_bottom.addOnTabSelectedListener(this);
 
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-
-        main_bottom.setOnNavigationItemSelectedListener(this);
 
         TedPermission.with(this)
                   .setPermissionListener(permissionlistener)
@@ -329,38 +344,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.location = location;
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch(menuItem.getItemId()) {
-            case R.id.bottom_basic:
-                releaseBasicMarker();
-                releaseGovMarker();
-                releaseMoneyMarker();
-                setBasicMarker();
-                break;
-            case R.id.bottom_gov:
-                releaseBasicMarker();
-                releaseGovMarker();
-                releaseMoneyMarker();
-                setGovMarker();
-                break;
-            case R.id.bottom_money:
-                releaseBasicMarker();
-                releaseGovMarker();
-                releaseMoneyMarker();
-                setMoneyMarker();
-                break;
-            case R.id.bottom_search:
-                SearchDialog dialog = new SearchDialog(MainActivity.this, callBack);
-                dialog.showDialog(list, location);
-                break;
-            case R.id.bottom_favorite:
-                //커스텀리스트뷰 구현
-                break;
-        }
-        return true;
-    }
-
     private void releaseBasicMarker() {
         for(int i=0; i<listMarker.size(); i++) {
             listMarker.get(i).setMap(null);
@@ -388,6 +371,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             naverMap.setLocationTrackingMode(LocationTrackingMode.None);
         }
     };
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        int pos = tab.getPosition();
+
+        switch(pos) {
+            case 0:
+                releaseBasicMarker();
+                releaseGovMarker();
+                releaseMoneyMarker();
+                setBasicMarker();
+                break;
+            case 1:
+                releaseBasicMarker();
+                releaseGovMarker();
+                releaseMoneyMarker();
+                setGovMarker();
+                break;
+            case 2:
+                releaseBasicMarker();
+                releaseGovMarker();
+                releaseMoneyMarker();
+                setMoneyMarker();
+                break;
+            case 3:
+                SearchDialog dialog = new SearchDialog(MainActivity.this, callBack);
+                dialog.showDialog(list, location);
+                break;
+            case 4:
+                //커스텀리스트뷰 구현
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
+    }
 
     private class InfoWindowAdapter extends InfoWindow.ViewAdapter {
         @NonNull
