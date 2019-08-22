@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -15,7 +16,12 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -23,6 +29,7 @@ import com.google.gson.Gson;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.geometry.Utmk;
 import com.naver.maps.map.CameraAnimation;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
@@ -31,7 +38,9 @@ import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.Symbol;
 import com.naver.maps.map.UiSettings;
+import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.Overlay;
 import com.naver.maps.map.util.FusedLocationSource;
 
 import java.io.BufferedReader;
@@ -41,6 +50,10 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener, NaverMap.OnLocationChangeListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -222,7 +235,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 처음부터 실행되야하니까 마커 생성후 바로 붙임
     private void setMarker(BarrierDO data, char flag) {
-        Marker marker = new Marker();
+
+        final InfoWindow infoWindow = new InfoWindow();
+        infoWindow.setAnchor(new PointF(0, 1));
+        infoWindow.setOffsetX(getResources().getDimensionPixelSize(R.dimen.custom_info_window_offset_x));
+        infoWindow.setOffsetY(getResources().getDimensionPixelSize(R.dimen.custom_info_window_offset_y));
+        infoWindow.setAdapter(new InfoWindowAdapter(getApplicationContext()));
+        infoWindow.setOnClickListener(new Overlay.OnClickListener() {
+            @Override
+            public boolean onClick(@NonNull Overlay overlay) {
+                infoWindow.close();
+                return true;
+            }
+        });
+
+
+        final Marker marker = new Marker();
         marker.setPosition(new LatLng(Double.parseDouble(data.getLatitude()), Double.parseDouble(data.getLongitude())));
         marker.setAnchor(new PointF(1, 1));
         marker.setIconPerspectiveEnabled(true); //자동 원근법
@@ -230,7 +258,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         marker.setSubCaptionText(data.getCategory()); //업종
         marker.setCaptionColor(Color.CYAN);
         marker.setHideCollidedSymbols(true);    //심볼 충돌제거
+        marker.setTag(data);
         marker.setMap(naverMap);
+
+        marker.setOnClickListener(new Overlay.OnClickListener() {
+            @Override
+            public boolean onClick(@NonNull Overlay overlay) {
+                infoWindow.open(marker);
+                return true;
+            }
+        });
 
         switch(flag) {
             case 'B':
@@ -346,6 +383,96 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .animate(CameraAnimation.Fly, 1000);
             naverMap.moveCamera(cameraUpdate);
             naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+        }
+    };
+
+    private class InfoWindowAdapter extends InfoWindow.ViewAdapter {
+        @NonNull
+        private final Context context;
+        private View rootView;
+        private TextView tvMarkerName;
+        private TextView tvMarkerAddr;
+        private TextView tvMarkerTime;
+        private ImageView ivMarkerFavorite;
+        private ImageView ivMarkerIcon;
+        private ImageView ivMarkerEle;
+        private Button btnMarkerGo;
+
+        private InfoWindowAdapter(@NonNull Context context) {
+            this.context = context;
+        }
+
+        @NonNull
+        @Override
+        public View getView(@NonNull InfoWindow infoWindow) {
+            if (rootView == null) {
+                rootView = View.inflate(context, R.layout.view_custom_info_window, null);
+                tvMarkerName = rootView.findViewById(R.id.tvMarkerName);
+                tvMarkerAddr = rootView.findViewById(R.id.tvMarkerAddr);
+                tvMarkerTime = rootView.findViewById(R.id.tvMarkerTime);
+                ivMarkerFavorite = rootView.findViewById(R.id.ivMarkerFavorite);
+                ivMarkerIcon = rootView.findViewById(R.id.ivMarkerIcon);
+                ivMarkerEle = rootView.findViewById(R.id.ivMarkerEle);
+                btnMarkerGo = rootView.findViewById(R.id.btnMarkerGo);
+            }
+
+            if (infoWindow.getMarker() != null) {
+                BarrierDO data = (BarrierDO) infoWindow.getMarker().getTag();
+                tvMarkerName.setText(data.getBusinessName());
+                tvMarkerAddr.setText("주소: " + data.getAddress());
+                tvMarkerTime.setText("영업: " + data.getOpTime());
+                ivMarkerFavorite.setImageResource(R.drawable.empty_star);
+                ivMarkerFavorite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ivMarkerFavorite.setImageResource(R.drawable.fill_star);
+                        Toast.makeText(context, "즐겨찾기 추가완료", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                btnMarkerGo.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent) {
+                        Log.i("tqtqtqtq", "Qweoiwqp");
+                        return false;
+                    }
+                });
+//                btnMarkerGo.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // 도착지 dialog창 나오기
+//                        Log.i("qtqt", "wqopejq");
+//                        LatLng g = new LatLng(location.getLatitude(), location.getLongitude());
+//                        Utmk loc = Utmk.valueOf(g);
+//
+//                        String key = getText(R.string.near_station).toString();
+//
+//                        HttpConnection connection = HttpConnection.getInstance();
+//
+//                        connection.requestStation(key, loc.x, loc.y, stationCallback);
+//                    }
+//                });
+            } else {
+//                icon.setImageResource(R.drawable.ic_my_location_black_24dp);
+//                text.setText(context.getString(
+//                        R.string.format_coord, infoWindow.getPosition().latitude, infoWindow.getPosition().longitude));
+            }
+
+            return rootView;
+        }
+    }
+
+    Callback stationCallback = new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            final String body = response.body().string().toString();
+
+            Log.i("tqfjadk", ""+body);
         }
     };
 }

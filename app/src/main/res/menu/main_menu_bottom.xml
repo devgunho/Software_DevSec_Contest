@@ -7,11 +7,11 @@
         android:title="전체" />
     <item
         android:id="@+id/bottom_gov"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/gov"
         android:title="공공" />
     <item
         android:id="@+id/bottom_money"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/money"
         android:title="금융" />
     <item
         android:id="@+id/bottom_search"
