@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="350dp"
+    android:layout_width="250dp"
     android:layout_height="400dp"
     android:background="@drawable/search_background">
 
@@ -34,6 +34,7 @@
                 android:layout_height="70dp"
                 android:id="@+id/edtSearch"
                 android:inputType="text"
+                android:text="생활"
                 android:theme="@style/EditTheme"/>
         </LinearLayout>
     </LinearLayout>
@@ -48,31 +49,52 @@
         android:layout_marginBottom="30dp"
         android:background="@drawable/search_top_background">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:id="@+id/tvRecent1"
-            android:textSize="30dp"
-            android:gravity="center"
-            android:text="최근검색어1"/>
+            android:layout_height="match_parent"
+            android:id="@+id/llRecentBefore"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:id="@+id/tvRecent2"
-            android:textSize="30dp"
-            android:gravity="center"
-            android:text="최근검색어2"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/tvRecent1"
+                android:textSize="30dp"
+                android:gravity="center"
+                android:text="최근검색어1"/>
 
-        <TextView
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/tvRecent2"
+                android:textSize="30dp"
+                android:gravity="center"
+                android:text="최근검색어2"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/tvRecent3"
+                android:textSize="30dp"
+                android:gravity="center"
+                android:text="최근검색어3"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:id="@+id/tvRecent3"
-            android:textSize="30dp"
-            android:gravity="center"
-            android:text="최근검색어3"/>
+            android:layout_height="match_parent"
+            android:id="@+id/llRecentAfter"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/lvSearch">
+            </ListView>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
