@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
-
         this.naverMap.addOnLocationChangeListener(this);
 
         setDefaultSettings();
