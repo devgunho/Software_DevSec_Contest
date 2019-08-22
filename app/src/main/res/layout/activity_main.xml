@@ -19,7 +19,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_gravity="bottom"
-        android:background="?android:attr/windowBackground"
         android:id="@+id/main_bottom"
         app:menu="@menu/main_menu_bottom">
     </com.google.android.material.bottomnavigation.BottomNavigationView>

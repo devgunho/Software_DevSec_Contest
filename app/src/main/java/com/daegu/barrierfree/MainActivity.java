@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -81,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         main_bottom = (BottomNavigationView)findViewById(R.id.main_bottom);
 
+        Menu menu = main_bottom.getMenu();
+        menu.findItem(R.id.bottom_basic).setIcon(R.drawable.gov);
         manager = (LocationManager)getSystemService(LOCATION_SERVICE);
 
         locationSource =
@@ -244,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         infoWindow.setOnClickListener(new Overlay.OnClickListener() {
             @Override
             public boolean onClick(@NonNull Overlay overlay) {
-                infoWindow.close();
+
                 return true;
             }
         });
@@ -430,28 +433,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
 
-                btnMarkerGo.setOnTouchListener(new View.OnTouchListener() {
+                btnMarkerGo.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onTouch(View view, MotionEvent motionEvent) {
-                        Log.i("tqtqtqtq", "Qweoiwqp");
-                        return false;
+                    public void onClick(View view) {
+                        // 도착지 dialog창 나오기
+                        Log.i("qtqt", "wqopejq");
+                        LatLng g = new LatLng(location.getLatitude(), location.getLongitude());
+                        Utmk loc = Utmk.valueOf(g);
+
+                        String key = getText(R.string.near_station).toString();
+
+                        HttpConnection connection = HttpConnection.getInstance();
+
+                        connection.requestStation(key, loc.x, loc.y, stationCallback);
                     }
                 });
-//                btnMarkerGo.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        // 도착지 dialog창 나오기
-//                        Log.i("qtqt", "wqopejq");
-//                        LatLng g = new LatLng(location.getLatitude(), location.getLongitude());
-//                        Utmk loc = Utmk.valueOf(g);
-//
-//                        String key = getText(R.string.near_station).toString();
-//
-//                        HttpConnection connection = HttpConnection.getInstance();
-//
-//                        connection.requestStation(key, loc.x, loc.y, stationCallback);
-//                    }
-//                });
+
+                //btnMarkerGo.performClick();
             } else {
 //                icon.setImageResource(R.drawable.ic_my_location_black_24dp);
 //                text.setText(context.getString(
