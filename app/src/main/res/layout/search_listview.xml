@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="100dp"
+    android:id="@+id/llSearchlv">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -13,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/tvSearchListName"
-            android:textSize="13dp"/>
+            android:gravity="center"
+            android:textSize="15dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -25,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/tvSearchListTel"
-            android:textSize="13dp"/>
+            android:gravity="center"
+            android:textSize="15dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -37,7 +40,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/tvSearchListDistance"
-            android:textSize="13dp"/>
+            android:gravity="center"
+            android:textSize="15dp"/>
     </LinearLayout>
 
 </LinearLayout>

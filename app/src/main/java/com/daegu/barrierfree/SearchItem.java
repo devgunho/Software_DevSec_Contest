@@ -9,6 +9,8 @@ public class SearchItem {
     private String name;
     private String tel;
     private int distance;
+    private double lat;
+    private double lon;
 
     public String getName() {
         return name;
@@ -32,5 +34,21 @@ public class SearchItem {
 
     public void setDistance(int distance) {
         this.distance = distance;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
     }
 }

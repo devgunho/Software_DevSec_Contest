@@ -30,9 +30,11 @@ public class SearchDialog {
     private ListView lvSearch = null;
     private ArrayList<BarrierDO> lists = new ArrayList<>(); // basic
     private Location locations = null;
+    private ICallBack callBack = null;
 
-    public SearchDialog(Context context) {
+    public SearchDialog(Context context, ICallBack callBack) {
         this.context = context;
+        this.callBack = callBack;
     }
 
     public void showDialog(ArrayList<BarrierDO> list, Location location) {
@@ -79,7 +81,7 @@ public class SearchDialog {
                         editor.commit();
                     }
 
-                    SearchAdapter adapter = new SearchAdapter();
+                    SearchAdapter adapter = new SearchAdapter(callBack, dialog  );
 
                     //검색 이후에는 llRecentBefore을 gone처리하고, llRecentAfter를 visible처리 (리스트뷰)(거리순)
                     for(int c = 0; c<lists.size(); c++) {
@@ -92,7 +94,7 @@ public class SearchDialog {
 
                             int distance = (int)locations.distanceTo(dest);
 
-                            adapter.addItem(barrier.getBusinessName(), barrier.getTel(), distance);
+                            adapter.addItem(barrier.getBusinessName(), barrier.getTel(), distance, Double.parseDouble(barrier.getLatitude()), Double.parseDouble(barrier.getLongitude()));
                         }
                     }
 

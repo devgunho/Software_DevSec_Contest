@@ -1,5 +1,6 @@
 package com.daegu.barrierfree;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,6 +19,13 @@ public class SearchAdapter extends BaseAdapter {
 
     private Context context = null;
     private ArrayList<SearchItem> list = new ArrayList<>();
+    private ICallBack callBack = null;
+    private Dialog dialog = null;
+
+    public SearchAdapter(ICallBack callBack, Dialog dialog) {
+        this.callBack = callBack;
+        this.dialog = dialog;
+    }
 
     @Override
     public int getCount() {
@@ -57,8 +66,9 @@ public class SearchAdapter extends BaseAdapter {
         TextView tvSearchListName = (TextView)view.findViewById(R.id.tvSearchListName);
         TextView tvSearchListTel = (TextView)view.findViewById(R.id.tvSearchListTel);
         TextView tvSearchListDistance = (TextView)view.findViewById(R.id.tvSearchListDistance);
+        LinearLayout llSearchlv = (LinearLayout)view.findViewById(R.id.llSearchlv);
 
-        SearchItem item = list.get(i);
+        final SearchItem item = list.get(i);
 
         tvSearchListName.setText("" + item.getName());
 
@@ -68,15 +78,25 @@ public class SearchAdapter extends BaseAdapter {
 
         tvSearchListDistance.setText(item.getDistance() + "m");
 
+        llSearchlv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callBack.goSelect(item.getLat(), item.getLon());
+                dialog.dismiss();
+            }
+        });
+
         return view;
     }
 
-    public void addItem(String name, String tel, int distance) {
+    public void addItem(String name, String tel, int distance, double lat, double lon) {
         SearchItem item = new SearchItem();
 
         item.setName(name);
         item.setTel(tel);
         item.setDistance(distance);
+        item.setLat(lat);
+        item.setLon(lon);
 
         list.add(item);
 

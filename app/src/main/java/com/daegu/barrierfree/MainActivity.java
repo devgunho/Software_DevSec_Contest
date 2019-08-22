@@ -6,10 +6,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<Marker> moneyMarker = new ArrayList<>(); // money marker
     private static Gson gson = new Gson();
     private Location location = null;
+    private LocationManager manager = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         main_bottom = (BottomNavigationView)findViewById(R.id.main_bottom);
+
+        manager = (LocationManager)getSystemService(LOCATION_SERVICE);
 
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
@@ -107,6 +114,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             mapFragment.getMapAsync(MainActivity.this);
+
+            if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                //GPS 설정화면으로 이동
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                intent.addCategory(Intent.CATEGORY_DEFAULT);
+                startActivity(intent);
+            }
         }
 
         @Override
@@ -297,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 setMoneyMarker();
                 break;
             case R.id.bottom_search:
-                SearchDialog dialog = new SearchDialog(MainActivity.this);
+                SearchDialog dialog = new SearchDialog(MainActivity.this, callBack);
                 dialog.showDialog(list, location);
                 break;
             case R.id.bottom_favorite:
@@ -324,4 +338,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             moneyMarker.get(i).setMap(null);
         }
     }
+
+    private ICallBack callBack = new ICallBack() {
+        @Override
+        public void goSelect(double lat, double lon) {
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(lat, lon))
+                    .animate(CameraAnimation.Fly, 1000);
+            naverMap.moveCamera(cameraUpdate);
+            naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+        }
+    };
 }
