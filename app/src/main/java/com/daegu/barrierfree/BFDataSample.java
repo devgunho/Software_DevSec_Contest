@@ -48,6 +48,10 @@ class BFDataSample {
     private String category;    // 26 : "메뉴명"
     private String latitude;    // 28 : "위도"
     private String longitude;   // 27 : "경도"
+    private String detail;
+    private String access;
+    private String ele;
+    private String toilet;
 
     /*
     public String getNum() {
@@ -115,16 +119,16 @@ class BFDataSample {
         this.basicInfo = basicInfo;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
-
     public String getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getLatitude() {
+        return latitude;
     }
 
     public void setLatitude(String latitude) {
@@ -137,6 +141,38 @@ class BFDataSample {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getAccess() {
+        return access;
+    }
+
+    public void setAccess(String access) {
+        this.access = access;
+    }
+
+    public String getEle() {
+        return ele;
+    }
+
+    public void setEle(String ele) {
+        this.ele = ele;
+    }
+
+    public String getToilet() {
+        return toilet;
+    }
+
+    public void setToilet(String toilet) {
+        this.toilet = toilet;
     }
 
     @Override
@@ -153,6 +189,10 @@ class BFDataSample {
                 ", \"category\" : \"" + category + '\"' +
                 ", \"latitude\" : \"" + latitude + '\"' +
                 ", \"longitude\" : \"" + longitude + '\"' +
+                ", \"detail\" : \"" + detail + '\"' +
+                ", \"access\" : \"" + access + '\"' +
+                ", \"ele\" : \"" + ele + '\"' +
+                ", \"toilet\" : \"" + toilet + '\"' +
                 '}';
     }
 }

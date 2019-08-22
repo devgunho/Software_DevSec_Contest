@@ -217,6 +217,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 sample.setCategory(tokens[26]);
                 sample.setLatitude(tokens[28]);
                 sample.setLongitude(tokens[27]);
+                sample.setDetail(tokens[31]);
+                sample.setAccess(tokens[32]);
+                sample.setEle(tokens[33]);
+                sample.setToilet(tokens[34]);
                 bfSamples.add(sample);
 
                 Log.d("MyActivity", "Just Created : " + sample);
