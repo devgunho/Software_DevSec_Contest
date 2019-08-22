@@ -231,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.bottom_favorite:
                 break;
         }
-
         return true;
     }
 }
