@@ -12,6 +12,10 @@ public class BarrierDO {
     public String category;    // 26 : "메뉴명"
     public String latitude;    // 28 : "위도"
     public String longitude;   // 27 : "경도"
+    public String detail;
+    public String access;
+    public String ele;
+    public String toilet;
 
     public BarrierDO() {
 
@@ -98,6 +102,38 @@ public class BarrierDO {
         this.longitude = longitude;
     }
 
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getAccess() {
+        return access;
+    }
+
+    public void setAccess(String access) {
+        this.access = access;
+    }
+
+    public String getEle() {
+        return ele;
+    }
+
+    public void setEle(String ele) {
+        this.ele = ele;
+    }
+
+    public String getToilet() {
+        return toilet;
+    }
+
+    public void setToilet(String toilet) {
+        this.toilet = toilet;
+    }
+
     @Override
     public String toString() {
         return "BarrierDO{" +
@@ -111,6 +147,10 @@ public class BarrierDO {
                 ", category='" + category + '\'' +
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
+                ", detail='" + detail + '\'' +
+                ", access='" + access + '\'' +
+                ", ele='" + ele + '\'' +
+                ", toilet='" + toilet + '\'' +
                 '}';
     }
 }

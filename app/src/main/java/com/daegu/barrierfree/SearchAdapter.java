@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.naver.maps.map.overlay.InfoWindow;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -81,7 +83,9 @@ public class SearchAdapter extends BaseAdapter {
         llSearchlv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final InfoWindow infoWindow = new InfoWindow();
                 callBack.goSelect(item.getLat(), item.getLon());
+
                 dialog.dismiss();
             }
         });

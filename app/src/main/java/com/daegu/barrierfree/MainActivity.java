@@ -46,6 +46,7 @@ import com.naver.maps.map.UiSettings;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
+import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.util.FusedLocationSource;
 
 import java.io.BufferedReader;
@@ -278,10 +279,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         marker.setIconPerspectiveEnabled(true); //자동 원근법
         marker.setCaptionText(data.getBusinessName()); //가게명
         marker.setSubCaptionText(data.getCategory()); //업종
-        marker.setCaptionColor(Color.CYAN);
+        marker.setCaptionColor(Color.rgb(0,0,0));
         marker.setHideCollidedSymbols(true);    //심볼 충돌제거
         marker.setTag(data);
         marker.setMap(naverMap);
+
+        if(data.getAccess().equals("1")) {
+            //초록색 갈수있음
+            marker.setIcon(OverlayImage.fromResource(R.drawable.greenzone));
+        } else if(data.getAccess().equals("2")) {
+            //빨간색 갈수없음
+            marker.setIcon(OverlayImage.fromResource(R.drawable.redzone));
+        }
 
         marker.setOnClickListener(new Overlay.OnClickListener() {
             @Override
@@ -373,6 +382,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .animate(CameraAnimation.Fly, 1000);
             naverMap.moveCamera(cameraUpdate);
             naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+
+            final InfoWindow infoWIndow = new InfoWindow();
+
+            for(int i=0; i<list.size(); i++) {
+                BarrierDO data = list.get(i);
+
+            }
         }
     };
 
