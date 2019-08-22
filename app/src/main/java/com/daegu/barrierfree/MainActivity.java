@@ -41,8 +41,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, NaverMap.OnSymbolClickListener, NaverMap.OnLocationChangeListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
-    private MapFragment mapFragment;
-    private FragmentManager fm;
+    private MapFragment mapFragment = null;
+    private FragmentManager fm = null;
+    private BottomNavigationView main_bottom = null;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
     private NaverMap naverMap = null;
@@ -56,8 +57,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        main_bottom = (BottomNavigationView)findViewById(R.id.main_bottom);
+
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
+
+        main_bottom.setOnNavigationItemSelectedListener(this);
 
         TedPermission.with(this)
                 .setPermissionListener(permissionlistener)
@@ -220,6 +225,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.bottom_money:
                 break;
             case R.id.bottom_search:
+                SearchDialog dialog = new SearchDialog(MainActivity.this);
+                dialog.showDialog();
                 break;
             case R.id.bottom_favorite:
                 break;
