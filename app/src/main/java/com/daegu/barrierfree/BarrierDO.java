@@ -16,6 +16,7 @@ public class BarrierDO {
     public String access;
     public String ele;
     public String toilet;
+    public String high;
 
     public BarrierDO() {
 
@@ -134,6 +135,14 @@ public class BarrierDO {
         this.toilet = toilet;
     }
 
+    public String getHigh() {
+        return high;
+    }
+
+    public void setHigh(String high) {
+        this.high = high;
+    }
+
     @Override
     public String toString() {
         return "BarrierDO{" +
@@ -151,6 +160,7 @@ public class BarrierDO {
                 ", access='" + access + '\'' +
                 ", ele='" + ele + '\'' +
                 ", toilet='" + toilet + '\'' +
+                ", high='" + high + '\'' +
                 '}';
     }
 }

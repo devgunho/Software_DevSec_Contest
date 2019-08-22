@@ -1,12 +1,14 @@
 package com.daegu.barrierfree;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -26,8 +28,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static Gson gson = new Gson();
     private Location location = null;
     private LocationManager manager = null;
-
+    private ImageView ivMarkerFavorite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 sample.setAccess(tokens[32]);
                 sample.setEle(tokens[33]);
                 sample.setToilet(tokens[34]);
+                sample.setHigh(tokens[35]);
                 bfSamples.add(sample);
 
                 doBarrierParsing(sample.toString().replaceAll("BFDataSample", ""));
@@ -291,6 +292,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onClick(@NonNull Overlay overlay) {
                 infoWindow.open(marker);
+
+                naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+
+                CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(marker.getPosition().latitude, marker.getPosition().longitude));
+                naverMap.moveCamera(cameraUpdate);
+
+                markerInfoDetail(marker);
+
                 return false;
             }
         });
@@ -418,7 +427,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 dialog.showDialog(list, location);
                 break;
             case 4:
-                //커스텀리스트뷰 구현
+                FavoriteDialog fv = new FavoriteDialog(MainActivity.this, callBack);
+                fv.showDialog(list, location);
                 break;
             default:
                 break;
@@ -442,9 +452,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         private TextView tvMarkerName;
         private TextView tvMarkerAddr;
         private TextView tvMarkerTime;
-        private ImageView ivMarkerFavorite;
         private ImageView ivMarkerIcon;
         private ImageView ivMarkerEle;
+        private ImageView ivMarkerHigh;
         private Button btnMarkerGo;
 
         private InfoWindowAdapter(@NonNull Context context) {
@@ -463,10 +473,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 ivMarkerIcon = rootView.findViewById(R.id.ivMarkerIcon);
                 ivMarkerEle = rootView.findViewById(R.id.ivMarkerEle);
                 btnMarkerGo = rootView.findViewById(R.id.btnMarkerGo);
+                ivMarkerHigh = rootView.findViewById(R.id.ivMarkerHigh);
             }
 
             if (infoWindow.getMarker() != null) {
                 BarrierDO data = (BarrierDO) infoWindow.getMarker().getTag();
+
                 tvMarkerName.setText(data.getBusinessName());
                 tvMarkerAddr.setText("주소: " + data.getAddress());
                 tvMarkerTime.setText("영업: " + data.getOpTime());
@@ -484,29 +496,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ivMarkerIcon.setImageDrawable(null);
                 }
 
-                ivMarkerFavorite.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ivMarkerFavorite.setImageResource(R.drawable.fill_star);
-                        Toast.makeText(context, "즐겨찾기 추가완료", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if(data.getHigh().equals("1")) {
+                    ivMarkerHigh.setImageResource(R.drawable.high1);
+                } else if(data.getHigh().equals("2")) {
+                    ivMarkerHigh.setImageResource(R.drawable.high2);
+                } else if(data.getHigh().equals("3")) {
+                    ivMarkerHigh.setImageResource(R.drawable.high3);
+                } else {
+                    ivMarkerHigh.setImageDrawable(null);
+                }
 
-                btnMarkerGo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // 도착지 dialog창 나오기
-                        Log.i("qtqt", "wqopejq");
-                        LatLng g = new LatLng(location.getLatitude(), location.getLongitude());
-                        Utmk loc = Utmk.valueOf(g);
-
-                        String key = getText(R.string.near_station).toString();
-
-                        HttpConnection connection = HttpConnection.getInstance();
-
-                        connection.requestStation(key, loc.x, loc.y, stationCallback);
-                    }
-                });
 
             } else {
                 //No Data
@@ -514,6 +513,59 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             return rootView;
         }
+    }
+
+    void markerInfoDetail(Marker marker)
+    {
+        final List<String> listItems = new ArrayList<>();
+        listItems.add("경로안내 시작");
+        listItems.add("즐겨찾기 추가");
+        final CharSequence[] items =  listItems.toArray(new String[ listItems.size()]);
+
+        final List selectedItems  = new ArrayList();
+
+        BarrierDO data = (BarrierDO)marker.getTag();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(data.getBusinessName());
+        builder.setMultiChoiceItems(items, null,
+                new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which,
+                                        boolean isChecked) {
+                        if (isChecked) {
+                            selectedItems.add(which);
+                        } else if (selectedItems.contains(which)) {
+                            selectedItems.remove(Integer.valueOf(which));
+                        }
+                    }
+                });
+        builder.setPositiveButton("그럼요",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String msg="";
+                        if(selectedItems.size() == 2) {
+                            ivMarkerFavorite.setImageResource(R.drawable.fill_star);
+                            Toast.makeText(getApplicationContext(), "즐겨찾기 추가완료", Toast.LENGTH_SHORT).show();
+
+                            showStation();
+                        } else {
+                            if(listItems.get(0).contains("경로안내")) {
+                                showStation();
+                            } else if(listItems.get(0).contains("즐겨찾기")) {
+                                ivMarkerFavorite.setImageResource(R.drawable.fill_star);
+                                Toast.makeText(getApplicationContext(), "즐겨찾기 추가완료", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                });
+        builder.setNegativeButton("아니요",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        builder.show();
     }
 
     Callback stationCallback = new Callback() {
@@ -529,4 +581,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.i("tqfjadk", ""+body);
         }
     };
+
+    private void showStation() {
+        LatLng g = new LatLng(location.getLatitude(), location.getLongitude());
+        Utmk loc = Utmk.valueOf(g);
+
+        String key = getText(R.string.near_station).toString();
+
+        HttpConnection connection = HttpConnection.getInstance();
+
+        connection.requestStation(key, loc.x, loc.y, stationCallback);
+    }
 }

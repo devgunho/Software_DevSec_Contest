@@ -52,6 +52,7 @@ class BFDataSample {
     private String access;
     private String ele;
     private String toilet;
+    private String high;
 
     /*
     public String getNum() {
@@ -175,6 +176,14 @@ class BFDataSample {
         this.toilet = toilet;
     }
 
+    public String getHigh() {
+        return high;
+    }
+
+    public void setHigh(String high) {
+        this.high = high;
+    }
+
     @Override
     public String toString() {
         return "BFDataSample{" +
@@ -193,6 +202,7 @@ class BFDataSample {
                 ", \"access\" : \"" + access + '\"' +
                 ", \"ele\" : \"" + ele + '\"' +
                 ", \"toilet\" : \"" + toilet + '\"' +
+                ", \"high\" : \"" + high + '\"' +
                 '}';
     }
 }

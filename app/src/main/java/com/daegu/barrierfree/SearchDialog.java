@@ -87,7 +87,7 @@ public class SearchDialog {
                     for(int c = 0; c<lists.size(); c++) {
                         // 키워드랑 맞다면 리스트뷰 추가
                         BarrierDO barrier = lists.get(c);
-                        if(barrier.getCategory().contains(keyword)) {
+                        if(barrier.getCategory().contains(keyword) || barrier.getDetail().contains(keyword)) {
                             Location dest = new Location("destination");
                             dest.setLatitude(Double.parseDouble(barrier.getLatitude()));
                             dest.setLongitude(Double.parseDouble(barrier.getLongitude()));
