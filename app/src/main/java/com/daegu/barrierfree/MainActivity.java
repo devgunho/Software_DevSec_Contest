@@ -198,10 +198,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String line = "";
 
         try {
-            //caption 버리기위함
             line = reader.readLine();
             while ((line = reader.readLine()) != null) {
-                //Log.d("MyActivity","Line : "+line);
                 // Split
                 String[] tokens = line.split(",");
 
@@ -224,14 +222,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 sample.setToilet(tokens[34]);
                 bfSamples.add(sample);
 
-                Log.d("MyActivity", "Just Created : " + sample);
-
                 doBarrierParsing(sample.toString().replaceAll("BFDataSample", ""));
 
             }
         } catch (IOException e) {
-            Log.wtf("MyActivity", "Error Reading Data File on Line" + line, e);
-            e.printStackTrace();
+
         }
 
         new Thread(new Runnable() {
@@ -268,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onClick(@NonNull Overlay overlay) {
                 infoWindow.close();
-                return true;
+                return false;
             }
         });
 
@@ -296,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onClick(@NonNull Overlay overlay) {
                 infoWindow.open(marker);
-                return true;
+                return false;
             }
         });
 
@@ -513,11 +508,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
 
-                //btnMarkerGo.performClick();
             } else {
-//                icon.setImageResource(R.drawable.ic_my_location_black_24dp);
-//                text.setText(context.getString(
-//                        R.string.format_coord, infoWindow.getPosition().latitude, infoWindow.getPosition().longitude));
+                //No Data
             }
 
             return rootView;
