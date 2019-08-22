@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         infoWindow.setOnClickListener(new Overlay.OnClickListener() {
             @Override
             public boolean onClick(@NonNull Overlay overlay) {
-
+                infoWindow.close();
                 return true;
             }
         });
@@ -385,10 +385,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             final InfoWindow infoWIndow = new InfoWindow();
 
-            for(int i=0; i<list.size(); i++) {
-                BarrierDO data = list.get(i);
+            for(int i=0; i<listMarker.size(); i++) {
+                Marker temp = listMarker.get(i);
 
-            }
+                if((temp.getPosition().latitude == lat) && (temp.getPosition().longitude == lon)) {
+                    infoWIndow.open(temp);
+                }
+             }
         }
     };
 
@@ -473,6 +476,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 tvMarkerAddr.setText("주소: " + data.getAddress());
                 tvMarkerTime.setText("영업: " + data.getOpTime());
                 ivMarkerFavorite.setImageResource(R.drawable.empty_star);
+
+                if(data.getEle().equals("1")) {
+                    ivMarkerEle.setImageResource(R.drawable.ele);
+                } else {
+                    ivMarkerEle.setImageDrawable(null);
+                }
+
+                if(data.getToilet().equals("1")) {
+                    ivMarkerIcon.setImageResource(R.drawable.toilet);
+                } else {
+                    ivMarkerIcon.setImageDrawable(null);
+                }
+
                 ivMarkerFavorite.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
