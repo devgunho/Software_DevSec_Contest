@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -29,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.gun0912.tedpermission.PermissionListener;
@@ -78,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static Gson gson = new Gson();
     private Location location = null;
     private LocationManager manager = null;
-    private ImageView ivMarkerFavorite;
+    private ImageView ivMarkerFavorite = null;
+    private Dialog mDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -517,79 +521,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     void markerInfoDetail(Marker marker)
     {
-        final List<String> listItems = new ArrayList<>();
-        listItems.add("경로안내 시작");
-        listItems.add("즐겨찾기 추가");
-        final CharSequence[] items =  listItems.toArray(new String[ listItems.size()]);
+        final View innerView = getLayoutInflater().inflate(R.layout.path_list, null);
 
-        final List selectedItems  = new ArrayList();
+        mDialog = new Dialog(this);
+        mDialog.setTitle("마커 확인");
+        mDialog.setContentView(innerView);
+        mDialog.setCancelable(true);
 
-        BarrierDO data = (BarrierDO)marker.getTag();
+        Button btnPathY = innerView.findViewById(R.id.btnPathY);
+        Button btnPathN = innerView.findViewById(R.id.btnPathN);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(data.getBusinessName());
-        builder.setMultiChoiceItems(items, null,
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which,
-                                        boolean isChecked) {
-                        if (isChecked) {
-                            selectedItems.add(which);
-                        } else if (selectedItems.contains(which)) {
-                            selectedItems.remove(Integer.valueOf(which));
-                        }
-                    }
-                });
-        builder.setPositiveButton("그럼요",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String msg="";
-                        if(selectedItems.size() == 2) {
-                            ivMarkerFavorite.setImageResource(R.drawable.fill_star);
-                            Toast.makeText(getApplicationContext(), "즐겨찾기 추가완료", Toast.LENGTH_SHORT).show();
+        btnPathY.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //창띄우기
+                showStation();
+            }
+        });
 
-                            showStation();
-                        } else {
-                            if(listItems.get(0).contains("경로안내")) {
-                                showStation();
-                            } else if(listItems.get(0).contains("즐겨찾기")) {
-                                ivMarkerFavorite.setImageResource(R.drawable.fill_star);
-                                Toast.makeText(getApplicationContext(), "즐겨찾기 추가완료", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                });
-        builder.setNegativeButton("아니요",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+        btnPathN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDialog.dismiss();
+            }
+        });
 
-                    }
-                });
-        builder.show();
+        // Dialog 위치 이동 시키기
+        mDialog.getWindow().setGravity(Gravity.BOTTOM);
+
+        mDialog.show();
     }
 
-    Callback stationCallback = new Callback() {
-        @Override
-        public void onFailure(Call call, IOException e) {
+    void showStation() {
+        final View innerView = getLayoutInflater().inflate(R.layout.station_list, null);
+        final Dialog station = new Dialog(this);
+        station.setTitle("위치 안내");
+        station.setContentView(innerView);
+        station.setCancelable(true);
 
-        }
+        TextView tvStationResult = (TextView)findViewById(R.id.tvStationResult);
 
-        @Override
-        public void onResponse(Call call, Response response) throws IOException {
-            final String body = response.body().string().toString();
 
-            Log.i("tqfjadk", ""+body);
-        }
-    };
 
-    private void showStation() {
-        LatLng g = new LatLng(location.getLatitude(), location.getLongitude());
-        Utmk loc = Utmk.valueOf(g);
-
-        String key = getText(R.string.near_station).toString();
-
-        HttpConnection connection = HttpConnection.getInstance();
-
-        connection.requestStation(key, loc.x, loc.y, stationCallback);
     }
 }

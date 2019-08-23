@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="350dp"
+    android:layout_height="250dp"
+    android:background="@drawable/path_title">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/tvPathTitle"
+            android:textSize="35dp"
+            android:gravity="center"
+            android:text="경로 안내 시작"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/btnPathY"
+                android:layout_width="142dp"
+                android:layout_height="match_parent"
+                android:layout_margin="20dp"
+                android:background="@drawable/path_button"
+                android:text="Y"
+                android:textSize="30dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="N"
+                android:textSize="30dp"
+                android:layout_margin="20dp"
+                android:id="@+id/btnPathN"
+                android:background="@drawable/path_button"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

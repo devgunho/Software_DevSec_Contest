@@ -1,0 +1,124 @@
+﻿AFL with Sanitizer 
+타겟은 PHP
+(sanitizer가 무엇이냐)
+
+
+우분투 리눅스 16.04.2 64비트
+
+CPU 4개
+메모리 2기가
+
+리눅스 환경설정
+
+$ sudo su
+# apt-get update
+# apt-get upgrade
+# apt-get install vim
+
+CLANG 4.0 설치
+http://apt.llvm.org/ 참고
+
+# vi /etc/apt/sources.list 에다가 아래 내용 추가
+deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main
+deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main
+
+# wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+
+# apt-get update
+
+
+# apt-get install clang-4.0 clang-4.0-doc libclang-common-4.0-dev libclang-4.0-dev libclang1-4.0 libclang1-4.0-dbg libllvm4.0 libllvm4.0-dbg lldb-4.0 llvm-4.0 llvm-4.0-doc llvm-4.0-examples llvm-4.0-runtime clang-format-4.0 python-clang-4.0 liblldb-4.0-dev lld-4.0 libfuzzer-4.0-dev
+
+# exit
+
+$ mkdir ~/Desktop/afl-fuzzer
+$ cd ~/Desktop/afl-fuzzer
+
+wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz
+tar xzvf afl-latest.tgz
+cd afl-2.40b/
+make 
+cd llvm_mode/
+
+ln -s /usr/bin/llvm-config-4.0 /usr/local/bin/llvm-config
+ln -s /usr/bin/clang-4.0 /usr/local/bin/clang
+ln -s /usr/bin/clang++-4.0 /usr/local/bin/clang++
+
+make
+cd ..
+cd qemu_mode
+
+apt-get -y install gdb gdb-multiarch gcc-multilib htop lynx socat mc
+apt-get -y install libtool libtool-bin automake bison libglib2.0-dev
+
+./build_qemu_support.sh
+cd..
+make install
+cd ..
+cd ..
+
+여기까지만 하면 됨
+아래는 실습 내용
+
+export USE_ZEND_ALLOC=0
+export AFL_USE_ASAN=1
+export PATH=/usr/lib/llvm-4.0/bin:$PATH
+mkdir php
+cd php
+wget http://php.uberglobalmirror.com/distributions/php-5.5.38.tar.gz
+tar xzvf php-5.5.38.tar.gz
+cd php-5.5.38
+apt-get install libxml2-dev
+CC=afl-clang-fast CXX=afl-clang-fast++ CFLAGS="-fsanitize=address -g " CXXFLAGS="-fsanitize=address -g" LDFLAGS="-fsanitize=address -g" ./configure
+make
+
+컴파일 하다보면
+readdir_r 에러남
+grep -R "readdir_r" ./
+검색 뒤 
+vi ./main/php_reentrancy.h
+/readdir_r 하면 55번째줄 나옴
+53 번 빈줄에 #define HAVE_POSIX_READDIR_R 1 추가
+다시 make
+
+php_readdir_r 에러 발생
+
+vi ext/session/mod_files.c 에서 #include "php_reentrancy.h"	 추가해줌
+다시 make
+
+'ext/phar/phar.phar' failed 에러 발생
+make clean
+make
+// export ASAN_OPTIONS="allocator_may_return_null=1 abort_on_error=1 symbolize=0 detect_container_overflow=false report_globals=0"
+unset AFL_USE_ASAN
+unset USE_ZEND_ALLOC
+make
+
+컴파일 완료
+
+export USE_ZEND_ALLOC=0
+export AFL_USE_ASAN=1
+make test  // 안해도됨
+cd sapi/
+cd cli
+./php -v
+mkdir in
+cd in
+cat > aa
+O:8:"stdClass":3:{s:3:"aaa";a:5:{i:0;i:1;i:1;i:2;i:2;s:39:"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";i:3;i:4;i:4;i:5;}s:3:"aaa";i:1;s:3:"ccc";R:5;}
+
+cd ..
+php -r 'unserialize(file_get_contents("./in/aa"));'
+
+root@ubuntu:/home/afl/Desktop/php/php-5.5.38/sapi/cli# cat > cmd
+./php -r 'unserialize(file_get_contents("./in/aa"));'
+export USE_ZEND_ALLOC=0
+export AFL_USE_ASAN=1
+afl-fuzz -i in -o out -m none ./php -r 'unserialize(file_get_contents("@@"));'
+
+
+
+echo core >/proc/sys/kernel/core_pattern
+afl-fuzz -i in -o out -m none ./php -r 'unserialize(file_get_contents("@@"));'
+
+
